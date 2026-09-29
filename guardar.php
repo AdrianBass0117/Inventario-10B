@@ -15,7 +15,7 @@ if ($nombre === '' || $cantidad === '') {
     exit;
 }
 
-if (!is_numeric($cantidad)) {
+if (!is_numeric($cantidad) || (int)$cantidad < 0 || (string)(int)$cantidad !== (string)$cantidad) {
     header('Location: index.php?estado=cantidad_invalida');
     exit;
 }
