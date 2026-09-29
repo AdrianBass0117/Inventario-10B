@@ -30,6 +30,7 @@ $estado = $_GET['estado'] ?? '';
     <title>INVENTARIO</title>
 
     <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
 </head>
 
 <body>
@@ -190,6 +191,21 @@ $estado = $_GET['estado'] ?? '';
     <footer>
         U1. Planeación del proceso de desarrollo de software
     </footer>
+    <script src="js/sweetalert2.all.min.js"></script>
+    <?php if($estado == "guardado"){?>
+    <script>
+        Swal.fire({
+            title: "¡Registrado con éxito!",
+            text:"¡Producto agregado correctamente!",
+            icon: "success",
+            timer: 3000,
+            draggable: true
+        });
+        if(window.history.replaceState){
+            window.history.replaceState(null, null, window.location.pathname);
+        }
+    </script>
+    <?php }?>
 </body>
 
 </html>
