@@ -19,13 +19,13 @@ $estado = $_GET['estado'] ?? '';
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        content="width=device-width, initial-scale=1.0">
 
     <title>INVENTARIO</title>
 
@@ -71,6 +71,12 @@ $estado = $_GET['estado'] ?? '';
                 </div>
             <?php endif; ?>
 
+            <?php if ($estado === 'nombre_corto'): ?>
+                <div class="mensaje error">
+                    El nombre debe tener al menos 3 letras.
+                </div>
+            <?php endif; ?>
+
             <form action="guardar.php" method="POST">
                 <div class="campo">
                     <label for="nombre">
@@ -82,9 +88,9 @@ $estado = $_GET['estado'] ?? '';
                         id="nombre"
                         name="nombre"
                         maxlength="100"
+                        minlength="3"
                         placeholder="Ejemplo: Café"
-                        required
-                    >
+                        required>
                 </div>
 
                 <div class="campo">
@@ -97,8 +103,7 @@ $estado = $_GET['estado'] ?? '';
                         id="cantidad"
                         name="cantidad"
                         placeholder="Ejemplo: 10"
-                        required
-                    >
+                        required>
                 </div>
 
                 <button type="submit">
@@ -186,4 +191,5 @@ $estado = $_GET['estado'] ?? '';
         U1. Planeación del proceso de desarrollo de software
     </footer>
 </body>
+
 </html>
