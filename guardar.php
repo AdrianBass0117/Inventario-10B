@@ -15,12 +15,13 @@ if ($nombre === '' || $cantidad === '') {
     exit;
 }
 
+
 if (mb_strlen($nombre) < 3) {
     header('Location: index.php?estado=nombre_corto');
     exit;
 }
 
-if (!is_numeric($cantidad)) {
+if (!is_numeric($cantidad) || (int)$cantidad < 0 || (string)(int)$cantidad !== (string)$cantidad) {
     header('Location: index.php?estado=cantidad_invalida');
     exit;
 }
