@@ -11,7 +11,7 @@ permissions:
 
 jobs: 
   pruebas:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
   
   steps: 
     - name: Descargar código
