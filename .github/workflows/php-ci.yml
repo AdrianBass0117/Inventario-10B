@@ -12,20 +12,20 @@ permissions:
 jobs: 
   pruebas:
     runs-on: ubuntu-latest
-  
-  steps: 
-    - name: Descargar código
-      uses: actions/checkout@v4
 
-    - name: Configurar PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
+    steps: 
+      - name: Descargar código
+        uses: actions/checkout@v4
 
-    - name: Verificar sintaxis
-      run: | 
-        php -l src/validaciones.php
-        php -l tests/test_validaciones.php
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
 
-    - name: Ejecutar pruebas
-      run: php tests/test_validaciones.php
+      - name: Verificar sintaxis
+        run: | 
+          php -l src/validaciones.php
+          php -l tests/test_validaciones.php
+
+      - name: Ejecutar pruebas
+        run: php tests/test_validaciones.php
