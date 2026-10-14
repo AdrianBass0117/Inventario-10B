@@ -2,16 +2,28 @@
 
 require_once __DIR__ . '/config/conexion.php';
 
-$consulta = $conexion->query(
-    'SELECT
-        id,
-        nombre,
-        cantidad,
-        fecharegistro
-    FROM productos
-    ORDER BY id asc'
-);
+$busqueda = trim($_GET['buscar'] ?? '');
 
+$sql = 'SELECT
+            id,
+            nombre,
+            cantidad,
+            fecharegistro
+        FROM productos';
+
+if ($busqueda !== '') {
+    $sql .= ' WHERE nombre LIKE :busqueda';
+}
+
+$sql .= ' ORDER BY id ASC';
+
+$consulta = $conexion->prepare($sql);
+
+if ($busqueda !== '') {
+    $consulta->bindValue(':busqueda', '%' . $busqueda . '%');
+}
+
+$consulta->execute();
 $productos = $consulta->fetchAll(PDO::FETCH_ASSOC);
 
 $estado = $_GET['estado'] ?? '';
@@ -120,10 +132,33 @@ $estado = $_GET['estado'] ?? '';
                     <h2>Productos registrados</h2>
 
                     <p class="descripcion">
-                        Total: <?php echo count($productos); ?>
+                        <?php if ($busqueda !== ''): ?>
+                            Resultados: <?php echo count($productos); ?>
+                        <?php else: ?>
+                            Total: <?php echo count($productos); ?>
+                        <?php endif; ?>
                     </p>
                 </div>
             </div>
+
+            <form method="GET" action="index.php" class="buscador">
+                <label for="buscar">Buscar producto</label>
+
+                <div class="buscador-controles">
+                    <input
+                        type="search"
+                        id="buscar"
+                        name="buscar"
+                        placeholder="Escribe el nombre del producto"
+                        value="<?php echo htmlspecialchars($busqueda, ENT_QUOTES, 'UTF-8'); ?>">
+
+                    <button type="submit">Buscar</button>
+
+                    <a href="index.php" class="buscador-limpiar">
+                        Mostrar todos
+                    </a>
+                </div>
+            </form>
 
             <div class="tabla-contenedor">
                 <table>
@@ -141,7 +176,11 @@ $estado = $_GET['estado'] ?? '';
                         <?php if (count($productos) === 0): ?>
                             <tr>
                                 <td colspan="5" class="sin-registros">
-                                    No hay productos registrados.
+                                    <?php if ($busqueda !== ''): ?>
+                                        No se encontraron productos con ese nombre.
+                                    <?php else: ?>
+                                        No hay productos registrados.
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -155,7 +194,9 @@ $estado = $_GET['estado'] ?? '';
                                 <td>
                                     <?php
                                     echo htmlspecialchars(
-                                        $producto['nombre']
+                                        $producto['nombre'],
+                                        ENT_QUOTES,
+                                        'UTF-8'
                                     );
                                     ?>
                                 </td>
@@ -177,9 +218,7 @@ $estado = $_GET['estado'] ?? '';
                                 </td>
 
                                 <td>
-                                    <?php
-                                    echo $producto['fecharegistro'];
-                                    ?>
+                                    <?php echo $producto['fecharegistro']; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -192,21 +231,24 @@ $estado = $_GET['estado'] ?? '';
     <footer>
         U1. Planeación del proceso de desarrollo de software
     </footer>
+
     <script src="js/sweetalert2.all.min.js"></script>
-    <?php if($estado == "guardado"){?>
-    <script>
-        Swal.fire({
-            title: "¡Registrado con éxito!",
-            text:"¡Producto agregado correctamente!",
-            icon: "success",
-            timer: 3000,
-            draggable: true
-        });
-        if(window.history.replaceState){
-            window.history.replaceState(null, null, window.location.pathname);
-        }
-    </script>
-    <?php }?>
+
+    <?php if ($estado === 'guardado'): ?>
+        <script>
+            Swal.fire({
+                title: "¡Registrado con éxito!",
+                text: "¡Producto agregado correctamente!",
+                icon: "success",
+                timer: 3000,
+                draggable: true
+            });
+
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.pathname);
+            }
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>
