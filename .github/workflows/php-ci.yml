@@ -1,6 +1,6 @@
 name: Pruebas automatizadas - Inventario
 
-on: 
+on:
   push:
   pull_request:
     branches:
@@ -9,11 +9,33 @@ on:
 permissions:
   contents: read
 
-jobs: 
+jobs:
   pruebas:
     runs-on: ubuntu-latest
 
-    steps: 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD:
+          MYSQL_DATABASE: inventario_test
+          MYSQL_USER: root
+          MYSQL_PASSWORD: 
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_NAME: inventario_test
+      DB_USER: root
+      DB_PASSWORD:
+
+    steps:
       - name: Descargar código
         uses: actions/checkout@v4
 
@@ -21,11 +43,26 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: pdo_mysql
 
       - name: Verificar sintaxis
-        run: | 
+        run: |
           php -l src/validaciones.php
           php -l tests/test_validaciones.php
+          php -l tests/conexion_pruebas.php
+          php -l tests/test_integracion_productos.php
 
-      - name: Ejecutar pruebas
+      - name: Crear tabla de pruebas
+        env:
+          MYSQL_PWD: ${{ env.DB_PASSWORD }}
+        run: |
+          mysql --protocol=TCP \
+            --host="$DB_HOST" \
+            --user="$DB_USER" \
+            "$DB_NAME" < tests/estructura_pruebas.sql
+
+      - name: Ejecutar pruebas unitarias
         run: php tests/test_validaciones.php
+
+      - name: Ejecutar prueba de integración
+        run: php tests/test_integracion_productos.php
